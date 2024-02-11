@@ -1,0 +1,44 @@
+# Copyright 2024 github.com/zadlg
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http:#www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+_VERSION = "4.4.1"
+_SHA256SUM = "dd16fb1d67bfab79a72f5e8390735c49e3e8e70b4945a15ab1f81ddb78658fb3"
+_URL = "https://ftp.gnu.org/gnu/make/make-4.4.1.tar.gz"
+_URL_MIRROR = "https://ftpmirror.gnu.org/gnu/make/make-{version}.tar.gz"
+
+http_archive(
+    name = "src",
+    urls = [url.format(version = _VERSION) for url in (_URL_MIRROR,)],
+    sha256 = _SHA256SUM,
+    strip_prefix = "make-{version}".format(version = _VERSION),
+)
+
+genrule(
+    name = "build",
+    srcs = [":src"],
+    enable_sandbox = True,
+    cmd = "mkdir install && $(location :src)/configure --without-guile --with-guile=no --disable-dependency-tracking --prefix=$PWD/${OUT} && cat build.cfg && ./build.sh && ./make install",
+    outs = {
+        "bin": (
+            "install/bin",
+        ),
+        "gnumake": (
+            "install/bin/make",
+        ),
+        "share": (
+            "install/share",
+        ),
+    },
+    visibility = ["PUBLIC"],
+)
