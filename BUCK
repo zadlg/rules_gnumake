@@ -13,13 +13,8 @@
 # limitations under the License.
 
 load("@gnumake//gnumake:gnumake.bzl", "gnumake_toolchain")
-load("@gnumake//gnumake:rules.bzl", "gnumake")
 
 gnumake_toolchain(
     name = "gnumake",
     visibility = ["PUBLIC"],
-)
-
-gnumake(
-    name = "example",
 )
