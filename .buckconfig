@@ -6,11 +6,9 @@ toolchains = toolchains
 none = none
 
 [repository_aliases]
-config = prelude
-ovr_config = prelude
-fbcode = none
 fbsource = none
-fbcode_macros = none
+fbcode = none
+config = prelude
 buck = none
 
 [parser]
