@@ -6,12 +6,9 @@ toolchains = toolchains
 none = none
 
 [repository_aliases]
-config = prelude
-ovr_config = prelude
-fbcode = none
 fbsource = none
-fbcode_macros = none
-buck = none
+fbcode = none
+config = prelude
 
 [parser]
 target_platform_detector_spec = target:root//...->prelude//platforms:default
