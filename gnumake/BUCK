@@ -31,13 +31,13 @@ genrule(
     cmd = "mkdir install && $(location :src)/configure --without-guile --with-guile=no --disable-dependency-tracking --prefix=$PWD/${OUT} && cat build.cfg && ./build.sh && ./make install",
     outs = {
         "bin": (
-            "install/bin",
+            "bin",
         ),
         "gnumake": (
-            "install/bin/make",
+            "bin/make",
         ),
         "share": (
-            "install/share",
+            "share",
         ),
     },
     visibility = ["PUBLIC"],
