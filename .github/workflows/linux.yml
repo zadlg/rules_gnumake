@@ -1,0 +1,38 @@
+name: Linux tests
+
+on:
+  push:
+    branches:
+      - "*"
+      - "!sapling-pr-archive-*"
+  pull_request:
+    branches:
+      - "main"
+      - "!sapling-pr-archive-*"
+
+jobs:
+  build_test_ubuntu:
+    runs-on: ubuntu-latest
+    environment: linux
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Install dependencies
+        run: |
+          apt-get update && apt-get install -y gcc curl zstd
+
+      - name: Download and uncompress buck2 binary
+        run: |
+          curl -L 'https://github.com/facebook/buck2/releases/download/2024-02-01/buck2-x86_64-unknown-linux-gnu.zst' > buck2.zst
+          echo -ne "${BUCK2_X86_64_LINUX_BINARY_SHA384_SUM}  buck2.zst" | shasum -a 384
+          zstd -d buck2.zst -o buck2
+          chmod +x buck2
+          mv buck2 /usr/bin/buck2
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run full build
+        run: |
+          buck2 build ...
+
