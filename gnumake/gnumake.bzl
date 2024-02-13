@@ -15,19 +15,23 @@
 load("@gnumake//gnumake:toolchain_info.bzl", "GNUMakeToolchainInfo")
 
 def _gnumake_toolchain_impl(ctx: AnalysisContext):
-    sub_targets = ctx.attrs._gnumake_built[DefaultInfo].sub_targets
     return [
         DefaultInfo(),
         GNUMakeToolchainInfo(
-            bin = sub_targets["gnumake"][DefaultInfo].default_outputs[0],
-            share = sub_targets["share"][DefaultInfo].default_outputs[0],
+            bin = ctx.attrs._gnumake_built[RunInfo],
         ),
     ]
 
 gnumake_toolchain = rule(
     impl = _gnumake_toolchain_impl,
     attrs = {
-        "_gnumake_built": attrs.default_only(attrs.dep(doc = "GNUMake built", default = "@gnumake//gnumake:build")),
+        "_gnumake_built": attrs.default_only(
+            attrs.exec_dep(
+                doc = "GNUMake built",
+                default = "@gnumake//gnumake:gnumake",
+                providers = [RunInfo],
+            ),
+        ),
     },
     is_toolchain_rule = True,
 )
