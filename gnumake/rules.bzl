@@ -13,6 +13,7 @@
 # limitations under the License.
 
 load("@gnumake//gnumake:toolchain_info.bzl", "GNUMakeToolchainInfo")
+load("@prelude//cxx:cxx_toolchain_types.bzl", "CxxToolchainInfo")
 
 def _symlink_all_source_files(ctx: AnalysisContext, subdir: str = "srcs"):
     """Create symlinks for all source files.
@@ -32,18 +33,56 @@ def _symlink_all_source_files(ctx: AnalysisContext, subdir: str = "srcs"):
 
     return ctx.actions.symlinked_dir("srcs", srcs)
 
+def _build_cflags_arg(cxx_toolchain_info: CxxToolchainInfo, extra_flags: list = []) -> list[str]:
+    """Build the list of flags for the CFLAGS argument.
+      Attrs:
+        cxx_toolchain_info: CxxToolchainInfo
+          Information on the cxx toolchain.
+        extra_flags: list[Any]
+          Extra flags to add.
+
+      Returns:
+          List[str]: list of C flags.
+    """
+    return cxx_toolchain_info.c_compiler_info.compiler_flags + [str(flag) for flag in extra_flags]
+
+def _build_cxxflags_arg(cxx_toolchain_info: CxxToolchainInfo, extra_flags: list = []) -> list[str]:
+    """Build the list of flags for the CXXFLAGS argument.
+      Attrs:
+        cxx_toolchain_info: CxxToolchainInfo
+          Information on the cxx toolchain.
+        extra_flags: list[Any]
+          Extra flags to add.
+
+      Returns:
+          List[str]: list of CXX flags.
+    """
+    return cxx_toolchain_info.cxx_compiler_info.compiler_flags + [str(flag) for flag in extra_flags]
+
 def _gnumake_impl(ctx: AnalysisContext) -> list:
     """Implementation of rule `gnumake`."""
     gnumake_bin = ctx.attrs._gnumake_toolchain[GNUMakeToolchainInfo].bin
+    cxx_toolchain_info = ctx.attrs._cxx_toolchain[CxxToolchainInfo]
 
     install_dir = ctx.actions.declare_output(ctx.attrs.install_prefix, dir = True)
 
     srcs_dir = _symlink_all_source_files(ctx)
+
+    cflags = _build_cflags_arg(
+        cxx_toolchain_info = cxx_toolchain_info,
+        extra_flags = ctx.attrs.compiler_flags,
+    )
+    cxxflags = _build_cxxflags_arg(
+        cxx_toolchain_info = cxx_toolchain_info,
+        extra_flags = ctx.attrs.compiler_flags,
+    )
     args = cmd_args()
     args.add(["-C", srcs_dir])
     args.add(cmd_args(cmd_args(install_dir.as_output()).relative_to(srcs_dir), format = "PREFIX={}"))
     args.add(ctx.attrs.args)
     args.add(ctx.attrs.targets)
+    args.add(cmd_args(" ".join(cflags), format = "CFLAGS={}"))
+    args.add(cmd_args(" ".join(cxxflags), format = "CXXFLAGS={}"))
 
     ctx.actions.run(
         args,
@@ -115,6 +154,14 @@ This is passed an an argument to `make` as `PREFIX=<value>`.
             ),
             doc = """
     GNUMake toolchain.
+""",
+        ),
+        "_cxx_toolchain": attrs.default_only(
+            attrs.toolchain_dep(
+                default = "@toolchains//:cxx",
+            ),
+            doc = """
+    CXX toolchain.
 """,
         ),
     }
