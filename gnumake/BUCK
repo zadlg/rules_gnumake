@@ -25,20 +25,12 @@ http_archive(
 )
 
 genrule(
-    name = "build",
+    name = "gnumake",
     srcs = [":src"],
     enable_sandbox = True,
-    cmd = "mkdir install && $(location :src)/configure --without-guile --with-guile=no --disable-dependency-tracking --prefix=$PWD/${OUT} && cat build.cfg && ./build.sh && ./make install",
-    outs = {
-        "bin": (
-            "install/bin",
-        ),
-        "gnumake": (
-            "install/bin/make",
-        ),
-        "share": (
-            "install/share",
-        ),
-    },
+    cmd = "mkdir __install__ && $(location :src)/configure --without-guile --with-guile=no --disable-dependency-tracking --prefix=$PWD/__install__ && ./build.sh && ./make install && cp __install__/bin/make ${OUT}",
+    out = "gnumake",
+    cacheable = True,
+    executable = True,
     visibility = ["PUBLIC"],
 )

@@ -15,7 +15,6 @@
 GNUMakeToolchainInfo = provider(
     doc = "GNUMake toolchain info",
     fields = {
-        "bin": provider_field(Artifact),
-        "share": provider_field(Artifact),
+        "bin": provider_field(RunInfo),
     },
 )
