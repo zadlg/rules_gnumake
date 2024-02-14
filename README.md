@@ -15,13 +15,14 @@ Since [GNU Make] relies on [Autoconf], [Autoconf] is thus needed.
 
 _Note_: A toolchain for [Autoconf] may be implemented later.
 
-### `python_bootstrap` and `genrule`.
+### `python_bootstrap`, `genrule` and `cxx` toolchains.
 
-Both `python_bootstrap` and `genrule` toolchains must be enabled.
+`python_bootstrap`, `genrule` and `cxx` toolchains must be enabled.
 
 To do so, make sure that the following two rules are called:
 
 ```starlark
+load("@prelude//toolchains:cxx.bzl", "system_cxx_toolchain")
 load("@prelude//toolchains:genrule.bzl", "system_genrule_toolchain")
 load("@prelude//toolchains:python.bzl", "system_python_bootstrap_toolchain", "system_python_toolchain")
 
@@ -32,6 +33,11 @@ system_python_bootstrap_toolchain(
 
 system_genrule_toolchain(
     name = "genrule",
+    visibility = ["PUBLIC"],
+)
+
+system_cxx_toolchain(
+    name = "cxx",
     visibility = ["PUBLIC"],
 )
 ```
@@ -46,6 +52,9 @@ toolchain, add the following cell:
 
 [repositories]
 gnumake = gnumake/
+
+[parser]
+target_platform_detector_spec = target:gnumake//...->prelude//platforms:default
 ```
 
 ## Usage
