@@ -14,18 +14,36 @@
 
 load("@gnumake//gnumake:toolchain_info.bzl", "GNUMakeToolchainInfo")
 
+def _symlink_all_source_files(ctx: AnalysisContext, subdir: str = "srcs"):
+    """Create symlinks for all source files.
+
+      Arguments:
+        ctx:
+          Analysis context
+        subdir:
+          Subdirectory which will contain the symlinks.
+
+      Returns:
+        Artifact to the subdirectory.
+    """
+    srcs = {}
+    for src in ctx.attrs.srcs:
+        srcs[src.short_path] = src
+
+    return ctx.actions.symlinked_dir("srcs", srcs)
+
 def _gnumake_impl(ctx: AnalysisContext) -> list:
     """Implementation of rule `gnumake`."""
     gnumake_bin = ctx.attrs._gnumake_toolchain[GNUMakeToolchainInfo].bin
 
     install_dir = ctx.actions.declare_output(ctx.attrs.install_prefix, dir = True)
 
+    srcs_dir = _symlink_all_source_files(ctx)
     args = cmd_args()
-    args.add(cmd_args(install_dir.as_output(), format = "PREFIX={}"))
-    [args.add(arg) for arg in ctx.attrs.args]
-    [args.add(target) for target in ctx.attrs.targets]
-    [args.hidden(src) for src in ctx.attrs.srcs]
-    args.add(["-f", ctx.attrs.srcs[0]])
+    args.add(["-C", srcs_dir])
+    args.add(cmd_args(cmd_args(install_dir.as_output()).relative_to(srcs_dir), format = "PREFIX={}"))
+    args.add(ctx.attrs.args)
+    args.add(ctx.attrs.targets)
 
     ctx.actions.run(
         args,
