@@ -1,0 +1,8 @@
+load("@gnumake//gnumake:rules.bzl", "gnumake")
+
+gnumake(
+    name = "makefile_with_compiler_flags",
+    srcs = ["Makefile", "a.c"],
+    compiler_flags = ["-DFLAG_ENABLED"],
+    targets = ["install"],
+)
