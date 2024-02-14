@@ -78,6 +78,7 @@ def _gnumake_impl(ctx: AnalysisContext) -> list:
     )
     args = cmd_args()
     args.add(["-C", srcs_dir])
+    args.add(["-f", ctx.attrs.makefile])
     args.add(cmd_args(cmd_args(install_dir.as_output()).relative_to(srcs_dir), format = "PREFIX={}"))
     args.add(ctx.attrs.args)
     args.add(ctx.attrs.targets)
@@ -139,6 +140,12 @@ This is passed an an argument to `make` as `PREFIX=<value>`.
             doc = """
     Input source.
 """,
+        ),
+        "makefile": attrs.string(
+            default = "Makefile",
+            doc = """
+    The Makefile to use. This must contain the relative path to the Makefile.
+"""
         ),
         "targets": attrs.list(
             attrs.string(),
