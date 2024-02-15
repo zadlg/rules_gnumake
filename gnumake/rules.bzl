@@ -14,6 +14,7 @@
 
 load("@gnumake//gnumake:toolchain_info.bzl", "GNUMakeToolchainInfo")
 load("@prelude//cxx:cxx_toolchain_types.bzl", "CxxToolchainInfo")
+load("@prelude//cxx:platform.bzl", "cxx_by_platform")
 
 def _symlink_all_source_files(ctx: AnalysisContext, subdir: str = "srcs"):
     """Create symlinks for all source files.
@@ -33,9 +34,11 @@ def _symlink_all_source_files(ctx: AnalysisContext, subdir: str = "srcs"):
 
     return ctx.actions.symlinked_dir("srcs", srcs)
 
-def _build_cflags_arg(cxx_toolchain_info: CxxToolchainInfo, extra_flags: list = []) -> list[str]:
+def _build_cflags_arg(ctx: AnalysisContext, cxx_toolchain_info: CxxToolchainInfo, extra_flags: list = []) -> list[str]:
     """Build the list of flags for the CFLAGS argument.
       Attrs:
+        ctx:
+          Analysis context.
         cxx_toolchain_info: CxxToolchainInfo
           Information on the cxx toolchain.
         extra_flags: list[Any]
@@ -46,9 +49,11 @@ def _build_cflags_arg(cxx_toolchain_info: CxxToolchainInfo, extra_flags: list = 
     """
     return cxx_toolchain_info.c_compiler_info.compiler_flags + [str(flag) for flag in extra_flags]
 
-def _build_cxxflags_arg(cxx_toolchain_info: CxxToolchainInfo, extra_flags: list = []) -> list[str]:
+def _build_cxxflags_arg(ctx: AnalysisContext, cxx_toolchain_info: CxxToolchainInfo, extra_flags: list = []) -> list[str]:
     """Build the list of flags for the CXXFLAGS argument.
       Attrs:
+        ctx:
+          Analysis context.
         cxx_toolchain_info: CxxToolchainInfo
           Information on the cxx toolchain.
         extra_flags: list[Any]
