@@ -47,7 +47,7 @@ def _build_cflags_arg(ctx: AnalysisContext, cxx_toolchain_info: CxxToolchainInfo
       Returns:
           List[str]: list of C flags.
     """
-    return cxx_toolchain_info.c_compiler_info.compiler_flags + [str(flag) for flag in extra_flags]
+    return cxx_toolchain_info.c_compiler_info.compiler_flags + [str(flag) for flag in extra_flags] + cxx_by_platform(ctx, ctx.attrs.platform_compiler_flags)
 
 def _build_cxxflags_arg(ctx: AnalysisContext, cxx_toolchain_info: CxxToolchainInfo, extra_flags: list = []) -> list[str]:
     """Build the list of flags for the CXXFLAGS argument.
@@ -62,7 +62,7 @@ def _build_cxxflags_arg(ctx: AnalysisContext, cxx_toolchain_info: CxxToolchainIn
       Returns:
           List[str]: list of CXX flags.
     """
-    return cxx_toolchain_info.cxx_compiler_info.compiler_flags + [str(flag) for flag in extra_flags]
+    return cxx_toolchain_info.cxx_compiler_info.compiler_flags + [str(flag) for flag in extra_flags] + cxx_by_platform(ctx, ctx.attrs.platform_compiler_flags)
 
 def _gnumake_impl(ctx: AnalysisContext) -> list:
     """Implementation of rule `gnumake`."""
@@ -74,10 +74,12 @@ def _gnumake_impl(ctx: AnalysisContext) -> list:
     srcs_dir = _symlink_all_source_files(ctx)
 
     cflags = _build_cflags_arg(
+        ctx,
         cxx_toolchain_info = cxx_toolchain_info,
         extra_flags = ctx.attrs.compiler_flags,
     )
     cxxflags = _build_cxxflags_arg(
+        ctx,
         cxx_toolchain_info = cxx_toolchain_info,
         extra_flags = ctx.attrs.compiler_flags,
     )
@@ -150,7 +152,7 @@ This is passed an an argument to `make` as `PREFIX=<value>`.
             default = "Makefile",
             doc = """
     The Makefile to use. This must contain the relative path to the Makefile.
-"""
+""",
         ),
         "targets": attrs.list(
             attrs.string(),
