@@ -1,0 +1,8 @@
+load("@gnumake//gnumake:rules.bzl", "gnumake")
+
+gnumake(
+    name = "simple_makefile",
+    srcs = ["entry.makefile"],
+    makefile = "entry.makefile",
+    targets = ["all"],
+)
