@@ -1,0 +1,22 @@
+load("@gnumake//gnumake:rules.bzl", "gnumake")
+
+gnumake(
+    name = "makefile_platform_compiler_flags",
+    srcs = ["Makefile", "a.c"],
+    compiler_flags = ["-DFLAG_ENABLED"],
+    platform_compiler_flags = [
+        (
+            "x86_64",
+            ["-DX86_64_FLAG_ENABLED"],
+        ),
+        (
+            "iphoneos",
+            ["-DIOS_FLAG_DISABLED"],
+        ),
+        (
+            "arm",
+            ["-DARM_FLAG_DISABLED"],
+        ),
+    ],
+    targets = ["install"],
+)
