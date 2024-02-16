@@ -38,6 +38,7 @@ def gnumake(
     tests: list[str] = _,
     _cxx_toolchain: str = _,
     _gnumake_toolchain: str = _,
+    _wrapped_make: str = _,
     args: list[str] = _,
     compiler_flags: list[str] = _,
     install_prefix: str = _,
@@ -61,6 +62,7 @@ def gnumake(
 * `tests`: a list of targets that provide tests for this one
 * `_cxx_toolchain`: CXX toolchain.
 * `_gnumake_toolchain`: GNUMake toolchain.
+* `_wrapped_make`: Wrapped make script.
 * `args`: A list of arguments to forward to the call to GNUMake.
 * `compiler_flags`: Flags to use when compiling.
 * `install_prefix`: Install prefix path, relative to where to install the result of the build. This is passed an an argument to `make` as `PREFIX=<value>`.
