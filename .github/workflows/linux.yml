@@ -39,3 +39,6 @@ jobs:
         run: |
           buck2 build ...
 
+      - name: Check that documentation is synced
+        run: |
+          buck2 run docs:generate
