@@ -24,6 +24,12 @@ http_archive(
     strip_prefix = "make-{version}".format(version = _VERSION),
 )
 
+sh_binary(
+    name = "wrapped_make",
+    main = "make.sh",
+    visibility = ["PUBLIC"],
+)
+
 genrule(
     name = "gnumake",
     srcs = [":src"],
