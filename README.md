@@ -7,14 +7,6 @@ is built from the source.
 
 ## Dependencies
 
-
-### [Autoconf]
-
-Since [GNU Make] relies on [Autoconf], [Autoconf] is thus needed.
-
-
-_Note_: A toolchain for [Autoconf] may be implemented later.
-
 ### `python_bootstrap`, `genrule` and `cxx` toolchains.
 
 `python_bootstrap`, `genrule` and `cxx` toolchains must be enabled.
@@ -51,7 +43,36 @@ toolchain, add the following cell:
 # .buckconfig
 
 [repositories]
-gnumake = gnumake/
+gnumake = <path_to_gnumake>/
+
+[parser]
+target_platform_detector_spec = target:gnumake//...->prelude//platforms:default
+```
+
+### Example
+
+First, we clone the repository under `external_deps/gnumake`:
+
+```shell
+$ mkdir -p external_deps/gnumake
+$ git clone 'https://github.com/zadlg/buck2_rules_gnumake.git' external_deps/gnumake
+```
+
+Then, we declare the cell by adding an entry under the section `repositories`
+of the `.buckconfig` file:
+
+```
+# .buckconfig
+
+[repositories]
+gnumake = external_deps/gnumake
+```
+
+Finally, we add a new entry under the section `parser` to tell Buck which
+platforms should be targeted for the `gnumake` cell:
+
+```
+# .buckconfig
 
 [parser]
 target_platform_detector_spec = target:gnumake//...->prelude//platforms:default
@@ -59,7 +80,45 @@ target_platform_detector_spec = target:gnumake//...->prelude//platforms:default
 
 ## Usage
 
-WIP.
+### Enable the toolchain
+
+First, we have to enable the [GNU Make] toolchain. To do so, edit your toolchain
+`BUCK` file (usually under `toolchains/BUCK`), and add the following:
+
+```starlark
+load("@gnumake//gnumake:gnumake.bzl", "gnumake_toolchain")
+
+gnumake_toolchain(
+    name = "gnumake",
+    visibility = ["PUBLIC"],
+)
+```
+
+### Import and use the rule
+
+Once the toolchain is enabled, one can do the following:
+
+```starlark
+# BUCK file
+
+load("@gnumake//gnumake:rules.bzl", "gnumake")
+
+gnumake(
+    name = "mylib",
+    srcs = glob(["Makefile", "*.c"]),
+    compiler_flags = ["-DENABLE_MY_FEATURE"],
+)
+```
+
+To build your target, simply use buck:
+
+```shell
+$ buck2 build //:mylib
+```
+
+## Examples
+
+See [`examples/`](examples/).
 
 ## License
 
@@ -67,4 +126,3 @@ Apache2, see [License](LICENSE).
 
 [GNU Make]: https://www.gnu.org/software/make/
 [Buck2]: https://buck2.build/
-[Autoconf]: https://www.gnu.org/software/autoconf/
