@@ -9,24 +9,15 @@ on:
 jobs:
   test_integration_linux_x86_64:
     runs-on: ubuntu-latest
-    env:
-      BUCK2_RELEASE_DATE: "2024-02-01"
-      BUCK2_ZSTD_FILENAME: "buck2-x86_64-unknown-linux-gnu.zst"
-      BUCK2_ZSTD_SHA384SUM: "791d51327207028b475ff39a1a6d5c8a29d2fe120bd3d20dac4c5a6a59b51d1609a8b66b197d3bb3e1d1a5df9c98a0ad"
     strategy:
       fail-fast: false
     steps:
       - name: Install dependencies
         run: |
-          sudo apt-get update && sudo apt-get install -y gcc curl zstd
+          sudo apt-get update && sudo apt-get install -y gcc
 
-      - name: Download and uncompress buck2 binary
-        run: |
-          curl -L "https://github.com/facebook/buck2/releases/download/${BUCK2_RELEASE_DATE}/${BUCK2_ZSTD_FILENAME}" > buck2.zst
-          echo -ne "${BUCK2_ZSTD_SHA384SUM}  buck2.zst" | shasum -a 384
-          zstd -d buck2.zst -o buck2
-          chmod +x buck2
-          sudo mv buck2 /usr/bin/buck2
+      - name: Fetch Buck2
+        uses: zadlg/buck2-github-composite-action@v1
 
       - name: Initialize an empty buck2 project
         run: |
