@@ -1,9 +1,6 @@
 PREFIX?=${PWD}
 
-${PREFIX}:
-	mkdir -p $@
-
-${PREFIX}/hello.txt: ${PREFIX}
+${PREFIX}/hello.txt:
 	echo "hello world" > $@
 
 .PHONY: all
