@@ -5,6 +5,8 @@ This repository implements a [Buck2] toolchain for using [GNU Make].
 [GNU Make] binaries are not downloaded from some source. Instead, the source code
 is built from the source.
 
+_TL;DR_: See [`gnumake`](docs/gnumake/gnumake/rules.bzl.md#gnumake).
+
 ## Dependencies
 
 ### `python_bootstrap`, `genrule` and `cxx` toolchains.
