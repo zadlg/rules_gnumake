@@ -107,20 +107,23 @@ def _gnumake_impl(ctx: AnalysisContext) -> list:
         cxx_toolchain_info = cxx_toolchain_info,
         extra_flags = ctx.attrs.compiler_flags,
     )
-    args = cmd_args()
+    args = cmd_args([gnumake_bin, install_dir.as_output()])
     args.add(["-C", srcs_dir])
     args.add(["-f", ctx.attrs.makefile])
     args.add(cmd_args(cmd_args(install_dir.as_output()).relative_to(srcs_dir), format = "PREFIX={}"))
     args.add(ctx.attrs.args)
     args.add(ctx.attrs.targets)
-    args.add(cmd_args(" ".join(cflags), format = "CFLAGS={}"))
-    args.add(cmd_args(" ".join(cxxflags), format = "CXXFLAGS={}"))
+    env = {
+        "CFLAGS": " ".join(cflags),
+        "CXXFLAGS": " ".join(cxxflags),
+    }
 
     ctx.actions.run(
         args,
         category = "gnumake",
         always_print_stderr = True,
-        exe = gnumake_bin,
+        env = env,
+        exe = ctx.attrs._wrapped_make[RunInfo],
     )
 
     return [
@@ -201,6 +204,13 @@ This is passed an an argument to `make` as `PREFIX=<value>`.
             doc = """
     CXX toolchain.
 """,
+        ),
+        "_wrapped_make": attrs.dep(
+            default = "@gnumake//gnumake:wrapped_make",
+            doc = """
+    Wrapped make script.
+""",
+            providers = [RunInfo],
         ),
     }
 
