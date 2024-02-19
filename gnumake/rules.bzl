@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@gnumake//gnumake:toolchain_info.bzl", "GNUMakeToolchainInfo")
 load("@prelude//cxx:cxx_toolchain_types.bzl", "CxxToolchainInfo")
 load("@prelude//cxx:platform.bzl", "cxx_by_platform")
 load(":attributes.bzl", "gnumake_rule_get_attributes")
+load(":toolchain_info.bzl", "GNUMakeToolchainInfo")
 
 def _symlink_all_source_files(ctx: AnalysisContext, subdir: str = "srcs"):
     """Creates symlinks for all source files.
@@ -273,6 +273,8 @@ def _gnumake_impl(ctx: AnalysisContext) -> list[Provider]:
     args.add(["-C", srcs_dir])
     args.add(["-f", ctx.attrs.makefile])
     args.add(cmd_args(cmd_args(install_dir.as_output()).relative_to(srcs_dir), format = "PREFIX={}"))
+    args.add(cmd_args(cxx_toolchain_info.c_compiler_info.compiler, format = "CC={}"))
+    args.add(cmd_args(cxx_toolchain_info.cxx_compiler_info.compiler, format = "CXX={}"))
     args.add(ctx.attrs.args)
     args.add(ctx.attrs.targets)
     env = {
