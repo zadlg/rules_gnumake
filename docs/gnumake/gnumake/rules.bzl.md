@@ -46,6 +46,7 @@ def gnumake(
     out_binaries: list[str] = _,
     out_binary_dir: str = _,
     out_lib_dir: str = _,
+    out_shared_libs: list[str] = _,
     out_static_libs: list[str] = _,
     platform_compiler_flags: list[(str, list[str])] = _,
     srcs: list[str],
@@ -74,6 +75,7 @@ def gnumake(
 * `out_binaries`: Filenames of output executable binaries. These files will be fetched from the `out_binary_dir` directory.
 * `out_binary_dir`: Name of the subdirectory that contains the executable binary files.
 * `out_lib_dir`: Name of the subdirectory that contains the library files.
+* `out_shared_libs`: Filenames of output shared libraries. These files will be fetched from the `out_lib_dir` directory.
 * `out_static_libs`: Filenames of output static libraries. These files will be fetched from the `out_lib_dir` directory.
 * `platform_compiler_flags`: Flags to use when compiling.
 * `srcs`: Input source.
