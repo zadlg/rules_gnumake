@@ -1,0 +1,8 @@
+load("@gnumake//gnumake:rules.bzl", "gnumake")
+
+gnumake(
+    name = "example",
+    srcs = ["Makefile", "myheader.h"],
+    targets = ["all"],
+    out_include_dir = "custom_include_dir",
+)
