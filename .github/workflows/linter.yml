@@ -1,0 +1,27 @@
+name: Linter tests
+
+on:
+  push:
+    branches:
+      - "*"
+      - "!sapling-pr-archive-*"
+
+jobs:
+  buildifier:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Setup Go environment
+        uses: actions/setup-go@v5.0.0
+
+      - name: Install buildifier
+        run: go install github.com/bazelbuild/buildtools/buildifier@latest
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run buildifier
+        run: |
+          buildifier -r -mode check .
+          find . -name BUCK -exec buildifier -mode check {} \;
