@@ -1,5 +1,5 @@
 a.a: a.o
-	clang -static -o $@ $^
+	os=$$(uname -s); if [ "$${os}" = "Darwin" ]; then xcrun libtool -o $@ $^; else ${CC} -static -o $@ $^; fi
 
 a.o: a.c
 
