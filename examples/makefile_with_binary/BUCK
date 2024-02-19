@@ -1,0 +1,9 @@
+load("@gnumake//gnumake:rules.bzl", "gnumake")
+
+gnumake(
+    name = "example",
+    srcs = ["Makefile", "a.c"],
+    targets = ["all"],
+    out_binaries = ["a"],
+    out_binary_dir = "custom_bin_path",
+)
