@@ -1,0 +1,9 @@
+load("@gnumake//gnumake:rules.bzl", "gnumake")
+
+gnumake(
+    name = "example",
+    srcs = ["Makefile", "a.c"],
+    targets = ["all"],
+    out_static_libs = ["a.a"],
+    out_lib_dir = "custom_static_libs",
+)
