@@ -93,6 +93,10 @@ def gnumake_rule_get_attributes() -> dict[typing.Any, typing.Any]
 
 Returns the attributes of the `gnumake` rule.
 
+#### Returns
+
+Attributes of `gnumake` rule.
+
 ---
 ## native
 
