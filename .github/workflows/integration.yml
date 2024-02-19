@@ -17,7 +17,7 @@ jobs:
           sudo apt-get update && sudo apt-get install -y gcc
 
       - name: Fetch Buck2
-        uses: zadlg/buck2-github-composite-action@v1
+        uses: zadlg/buck2-github-composite-action@v2
 
       - name: Initialize an empty buck2 project
         run: |
