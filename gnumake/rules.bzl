@@ -188,6 +188,27 @@ def _fetch_out_static_libraries(ctx: AnalysisContext, install_dir: Artifact) -> 
         identifier_format = "{label}/out_static_libs[{i}]={filename}",
     )
 
+def _fetch_out_shared_libraries(ctx: AnalysisContext, install_dir: Artifact) -> (list[Artifact], dict):
+    """Fetches the output shared libraries, using `attr.out_lib_dir`
+    and `attr.out_shared_libs`.
+
+    Attrs:
+      ctx:
+        Analysis context.
+      install_dir:
+        Install directory.
+
+    Returns:
+      List of artifacts and dictionary of providers. This list may be empty."""
+
+    return _move_artifacts(
+        ctx = ctx,
+        install_dir = install_dir,
+        sub_dir = ctx.attrs.out_lib_dir,
+        filenames = ctx.attrs.out_shared_libs,
+        identifier_format = "{label}/out_shared_libs[{i}]={filename}",
+    )
+
 def _gnumake_impl(ctx: AnalysisContext) -> list:
     """Implementation of rule `gnumake`."""
     gnumake_bin = ctx.attrs._gnumake_toolchain[GNUMakeToolchainInfo].bin
@@ -236,13 +257,19 @@ def _gnumake_impl(ctx: AnalysisContext) -> list:
         install_dir = install_dir,
     )
 
+    out_shared_libs, out_shared_libs_sub_targets = _fetch_out_shared_libraries(
+        ctx = ctx,
+        install_dir = install_dir,
+    )
+
     sub_targets = {}
     sub_targets.update(out_binaries_sub_targets)
     sub_targets.update(out_static_libs_sub_targets)
+    sub_targets.update(out_shared_libs_sub_targets)
 
     return [
         DefaultInfo(
-            default_outputs = [install_dir] + out_binaries + out_static_libs,
+            default_outputs = [install_dir] + out_binaries + out_static_libs + out_shared_libs,
             sub_targets = sub_targets,
         ),
     ]
@@ -316,6 +343,14 @@ This is passed an an argument to `make` as `PREFIX=<value>`.
             default = [],
             doc = """
     Filenames of output static libraries. These files will be fetched
+    from the `out_lib_dir` directory.
+""",
+        ),
+        "out_shared_libs": attrs.list(
+            attrs.string(),
+            default = [],
+            doc = """
+    Filenames of output shared libraries. These files will be fetched
     from the `out_lib_dir` directory.
 """,
         ),
