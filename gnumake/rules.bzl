@@ -209,6 +209,38 @@ def _fetch_out_shared_libraries(ctx: AnalysisContext, install_dir: Artifact) -> 
         identifier_format = "{label}/out_shared_libs[{i}]={filename}",
     )
 
+def _fetch_include_directory(ctx: AnalysisContext, install_dir: Artifact) -> Artifact | None:
+    """Fetches the include directories, using `attr.out_include_dir`.
+
+    Attrs:
+      ctx:
+        Analysis context.
+      install_dir:
+        Install directory.
+
+    Returns:
+      The artifact corresponding to the include directory, or None if
+      `attr.out_include_dir` is empty.
+    """
+
+    if ctx.attrs.out_include_dir == "":
+        return None
+
+    src = cmd_args(install_dir, format = "{{}}/{out_include_dir}".format(
+        out_include_dir = ctx.attrs.out_include_dir,
+    ))
+    out = ctx.actions.declare_output("include", dir = True)
+    ctx.actions.run(
+        cmd_args(["mv", src, out.as_output()]),
+        category = "gnumake",
+        identifier = "{label}/out_include_dir={include_dir}".format(
+            label = ctx.label,
+            include_dir = ctx.attrs.out_include_dir,
+        ),
+    )
+
+    return out
+
 def _gnumake_impl(ctx: AnalysisContext) -> list:
     """Implementation of rule `gnumake`."""
     gnumake_bin = ctx.attrs._gnumake_toolchain[GNUMakeToolchainInfo].bin
@@ -247,29 +279,45 @@ def _gnumake_impl(ctx: AnalysisContext) -> list:
         exe = ctx.attrs._wrapped_make[RunInfo],
     )
 
+    default_outputs = [install_dir]
+    sub_targets = {}
+
     out_binaries, out_binaries_sub_targets = _fetch_out_executable_binaries(
         ctx = ctx,
         install_dir = install_dir,
     )
+    default_outputs += out_binaries
+    sub_targets.update(out_binaries_sub_targets)
 
     out_static_libs, out_static_libs_sub_targets = _fetch_out_static_libraries(
         ctx = ctx,
         install_dir = install_dir,
     )
+    default_outputs += out_static_libs
+    sub_targets.update(out_static_libs_sub_targets)
 
     out_shared_libs, out_shared_libs_sub_targets = _fetch_out_shared_libraries(
         ctx = ctx,
         install_dir = install_dir,
     )
-
-    sub_targets = {}
-    sub_targets.update(out_binaries_sub_targets)
-    sub_targets.update(out_static_libs_sub_targets)
+    default_outputs += out_shared_libs
     sub_targets.update(out_shared_libs_sub_targets)
+
+    out_include_dir = _fetch_include_directory(
+        ctx = ctx,
+        install_dir = install_dir,
+    )
+    if out_include_dir != None:
+        default_outputs.append(out_include_dir)
+        sub_targets["include"] = [
+            DefaultInfo(
+                default_output = out_include_dir,
+            ),
+        ]
 
     return [
         DefaultInfo(
-            default_outputs = [install_dir] + out_binaries + out_static_libs + out_shared_libs,
+            default_outputs = default_outputs,
             sub_targets = sub_targets,
         ),
     ]
@@ -366,6 +414,12 @@ This is passed an an argument to `make` as `PREFIX=<value>`.
             doc = """
     Filenames of output executable binaries. These files will be fetched
     from the `out_binary_dir` directory.
+""",
+        ),
+        "out_include_dir": attrs.string(
+            default = "",
+            doc = """
+    Name of the subdirectory that contains the header files.
 """,
         ),
         "_gnumake_toolchain": attrs.default_only(
