@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@gnumake//gnumake:toolchain_info.bzl", "GNUMakeToolchainInfo")
+load(":providers.bzl", "GNUMakeToolchainInfo")
 
 def _gnumake_toolchain_impl(ctx: AnalysisContext) -> list[Provider]:
     """Implementation of the GNU Make toolchain.
