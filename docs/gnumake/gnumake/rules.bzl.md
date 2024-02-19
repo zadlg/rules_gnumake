@@ -85,6 +85,15 @@ def gnumake(
 
 
 ---
+## gnumake\_rule\_get\_attributes
+
+```python
+def gnumake_rule_get_attributes() -> dict[typing.Any, typing.Any]
+```
+
+Returns the attributes of the `gnumake` rule.
+
+---
 ## native
 
 ```python
