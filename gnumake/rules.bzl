@@ -15,6 +15,7 @@
 load("@gnumake//gnumake:toolchain_info.bzl", "GNUMakeToolchainInfo")
 load("@prelude//cxx:cxx_toolchain_types.bzl", "CxxToolchainInfo")
 load("@prelude//cxx:platform.bzl", "cxx_by_platform")
+load(":attributes.bzl", "gnumake_rule_get_attributes")
 
 def _symlink_all_source_files(ctx: AnalysisContext, subdir: str = "srcs"):
     """Create symlinks for all source files.
@@ -322,133 +323,7 @@ def _gnumake_impl(ctx: AnalysisContext) -> list:
         ),
     ]
 
-def _gnumake_attributes() -> dict[str, Attr]:
-    return {
-        "args": attrs.list(
-            attrs.arg(),
-            default = [],
-            doc = """
-    A list of arguments to forward to the call to GNUMake.
-""",
-        ),
-        "compiler_flags": attrs.list(
-            attrs.arg(),
-            default = [],
-            doc = """
-    Flags to use when compiling.
-""",
-        ),
-        "install_prefix": attrs.string(
-            default = "__install__",
-            doc = """
-    Install prefix path, relative to where to install the result of the build.
-This is passed an an argument to `make` as `PREFIX=<value>`.
-""",
-        ),
-        "platform_compiler_flags": attrs.list(
-            attrs.tuple(
-                attrs.regex(),
-                attrs.list(
-                    attrs.arg(),
-                    default = [],
-                    doc = """
-    Platform specific compiler flags. See `cxx_common.platform_compiler_flags_arg()` for more information.
-""",
-                ),
-            ),
-            default = [],
-            doc = """
-    Flags to use when compiling.
-""",
-        ),
-        "srcs": attrs.list(
-            attrs.source(),
-            doc = """
-    Input source.
-""",
-        ),
-        "makefile": attrs.string(
-            default = "Makefile",
-            doc = """
-    The Makefile to use. This must contain the relative path to the Makefile.
-""",
-        ),
-        "targets": attrs.list(
-            attrs.string(),
-            default = ["", "install"],
-            doc = """
-    A list of targets to produce.
-""",
-        ),
-        "out_lib_dir": attrs.string(
-            default = "lib",
-            doc = """
-    Name of the subdirectory that contains the library files.
-""",
-        ),
-        "out_static_libs": attrs.list(
-            attrs.string(),
-            default = [],
-            doc = """
-    Filenames of output static libraries. These files will be fetched
-    from the `out_lib_dir` directory.
-""",
-        ),
-        "out_shared_libs": attrs.list(
-            attrs.string(),
-            default = [],
-            doc = """
-    Filenames of output shared libraries. These files will be fetched
-    from the `out_lib_dir` directory.
-""",
-        ),
-        "out_binary_dir": attrs.string(
-            default = "bin",
-            doc = """
-    Name of the subdirectory that contains the executable binary files.
-""",
-        ),
-        "out_binaries": attrs.list(
-            attrs.string(),
-            default = [],
-            doc = """
-    Filenames of output executable binaries. These files will be fetched
-    from the `out_binary_dir` directory.
-""",
-        ),
-        "out_include_dir": attrs.string(
-            default = "",
-            doc = """
-    Name of the subdirectory that contains the header files.
-""",
-        ),
-        "_gnumake_toolchain": attrs.default_only(
-            attrs.toolchain_dep(
-                default = "@gnumake//:gnumake",
-                providers = [GNUMakeToolchainInfo],
-            ),
-            doc = """
-    GNUMake toolchain.
-""",
-        ),
-        "_cxx_toolchain": attrs.default_only(
-            attrs.toolchain_dep(
-                default = "@toolchains//:cxx",
-            ),
-            doc = """
-    CXX toolchain.
-""",
-        ),
-        "_wrapped_make": attrs.dep(
-            default = "@gnumake//gnumake:wrapped_make",
-            doc = """
-    Wrapped make script.
-""",
-            providers = [RunInfo],
-        ),
-    }
-
 gnumake = rule(
     impl = _gnumake_impl,
-    attrs = _gnumake_attributes(),
+    attrs = gnumake_rule_get_attributes(),
 )
