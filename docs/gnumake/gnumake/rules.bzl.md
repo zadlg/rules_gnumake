@@ -5,6 +5,27 @@ CxxToolchainInfo: provider_callable
 ```
 
 ---
+## GNUMakeArtifactInfo
+
+```python
+GNUMakeArtifactInfo: provider_callable
+```
+
+---
+## GNUMakeCompilationInfo
+
+```python
+GNUMakeCompilationInfo: provider_callable
+```
+
+---
+## GNUMakeOutputInfo
+
+```python
+GNUMakeOutputInfo: provider_callable
+```
+
+---
 ## GNUMakeToolchainInfo
 
 ```python

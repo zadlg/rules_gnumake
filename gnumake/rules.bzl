@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@gnumake//gnumake:toolchain_info.bzl", "GNUMakeToolchainInfo")
 load("@prelude//cxx:cxx_toolchain_types.bzl", "CxxToolchainInfo")
 load("@prelude//cxx:platform.bzl", "cxx_by_platform")
 load(":attributes.bzl", "gnumake_rule_get_attributes")
+load(":providers.bzl", "GNUMakeArtifactInfo", "GNUMakeCompilationInfo", "GNUMakeOutputInfo", "GNUMakeToolchainInfo")
 
 def _symlink_all_source_files(ctx: AnalysisContext, subdir: str = "srcs"):
     """Creates symlinks for all source files.
@@ -143,6 +143,14 @@ def _move_artifacts(
         out_files.append(out)
         sub_targets[filename] = [
             DefaultInfo(default_output = out),
+            GNUMakeArtifactInfo(
+                output = out,
+                original_path = "{install_dir}/{sub_dir}/{filename}".format(
+                    install_dir = install_dir.short_path,
+                    sub_dir = sub_dir,
+                    filename = filename,
+                ),
+            ),
         ]
 
     return out_files, sub_targets
@@ -269,6 +277,7 @@ def _gnumake_impl(ctx: AnalysisContext) -> list[Provider]:
         cxx_toolchain_info = cxx_toolchain_info,
         extra_flags = ctx.attrs.compiler_flags,
     )
+
     args = cmd_args([gnumake_bin, install_dir.as_output()])
     args.add(["-C", srcs_dir])
     args.add(["-f", ctx.attrs.makefile])
@@ -322,13 +331,35 @@ def _gnumake_impl(ctx: AnalysisContext) -> list[Provider]:
             DefaultInfo(
                 default_output = out_include_dir,
             ),
+            GNUMakeArtifactInfo(
+                output = out_include_dir,
+                original_path = "{install_dir}/{out_include_dir}".format(
+                    install_dir = install_dir.short_path,
+                    out_include_dir = ctx.attrs.out_include_dir,
+                ),
+            ),
         ]
+
+    gnumake_output_info = GNUMakeOutputInfo(
+        compilation_info = GNUMakeCompilationInfo(
+            c_compiler_flags = cflags,
+            cxx_compiler_flags = cxxflags,
+        ),
+        make_flags = {
+            "CFLAGS": " ".join(cflags),
+            "CXXFLAGS": " ".join(cxxflags),
+            "PREFIX": cmd_args(install_dir).relative_to(srcs_dir),
+        },
+        install_prefix = install_dir,
+        srcs = srcs_dir,
+    )
 
     return [
         DefaultInfo(
             default_outputs = default_outputs,
             sub_targets = sub_targets,
         ),
+        gnumake_output_info,
     ]
 
 gnumake = rule(

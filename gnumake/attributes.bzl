@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@gnumake//gnumake:toolchain_info.bzl", "GNUMakeToolchainInfo")
+load(":providers.bzl", "GNUMakeToolchainInfo")
 
 def gnumake_rule_get_attributes() -> dict:
     """Returns the attributes of the `gnumake` rule.
