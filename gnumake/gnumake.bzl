@@ -14,7 +14,13 @@
 
 load("@gnumake//gnumake:toolchain_info.bzl", "GNUMakeToolchainInfo")
 
-def _gnumake_toolchain_impl(ctx: AnalysisContext):
+def _gnumake_toolchain_impl(ctx: AnalysisContext) -> list[Provider]:
+    """Implementation of the GNU Make toolchain.
+
+    Returns:
+      List of providers.
+    """
+
     return [
         DefaultInfo(),
         GNUMakeToolchainInfo(
@@ -24,6 +30,7 @@ def _gnumake_toolchain_impl(ctx: AnalysisContext):
 
 gnumake_toolchain = rule(
     impl = _gnumake_toolchain_impl,
+    doc = "GNU Make toolchain",
     attrs = {
         "_gnumake_built": attrs.default_only(
             attrs.exec_dep(

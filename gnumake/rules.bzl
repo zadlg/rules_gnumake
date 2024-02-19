@@ -18,9 +18,9 @@ load("@prelude//cxx:platform.bzl", "cxx_by_platform")
 load(":attributes.bzl", "gnumake_rule_get_attributes")
 
 def _symlink_all_source_files(ctx: AnalysisContext, subdir: str = "srcs"):
-    """Create symlinks for all source files.
+    """Creates symlinks for all source files.
 
-      Arguments:
+      Args:
         ctx:
           Analysis context
         subdir:
@@ -29,6 +29,7 @@ def _symlink_all_source_files(ctx: AnalysisContext, subdir: str = "srcs"):
       Returns:
         Artifact to the subdirectory.
     """
+
     srcs = {}
     for src in ctx.attrs.srcs:
         srcs[src.short_path] = src
@@ -36,17 +37,18 @@ def _symlink_all_source_files(ctx: AnalysisContext, subdir: str = "srcs"):
     return ctx.actions.symlinked_dir("srcs", srcs)
 
 def _get_platform_specific_compiler_flags(ctx: AnalysisContext, platform_compiler_flags: list) -> list[str]:
-    """Return the platform-specific compiler flags.
+    """Returns the platform-specific compiler flags.
 
-    Attrs:
-      ctx:
-        Analysis context.
-      platform_compiler_flags:
-        List of tuple of shape (regex, list[flags]).
+      Args:
+        ctx:
+          Analysis context.
+        platform_compiler_flags:
+          List of tuple of shape (regex, list[flags]).
 
-    Returns:
-      A list[str] of flags.
+      Returns:
+        A list[str] of flags.
     """
+
     pcf = []
     all_flags = cxx_by_platform(ctx, platform_compiler_flags)
     for flags in all_flags:
@@ -54,8 +56,8 @@ def _get_platform_specific_compiler_flags(ctx: AnalysisContext, platform_compile
     return pcf
 
 def _build_cflags_arg(ctx: AnalysisContext, cxx_toolchain_info: CxxToolchainInfo, extra_flags: list = []) -> list[str]:
-    """Build the list of flags for the CFLAGS argument.
-      Attrs:
+    """Builds the list of flags for the CFLAGS argument.
+      Args:
         ctx:
           Analysis context.
         cxx_toolchain_info: CxxToolchainInfo
@@ -66,13 +68,15 @@ def _build_cflags_arg(ctx: AnalysisContext, cxx_toolchain_info: CxxToolchainInfo
       Returns:
           List[str]: list of C flags.
     """
+
     return cxx_toolchain_info.c_compiler_info.compiler_flags + \
            [str(flag) for flag in extra_flags] + \
            _get_platform_specific_compiler_flags(ctx, ctx.attrs.platform_compiler_flags)
 
 def _build_cxxflags_arg(ctx: AnalysisContext, cxx_toolchain_info: CxxToolchainInfo, extra_flags: list = []) -> list[str]:
-    """Build the list of flags for the CXXFLAGS argument.
-      Attrs:
+    """Builds the list of flags for the CXXFLAGS argument.
+
+      Args:
         ctx:
           Analysis context.
         cxx_toolchain_info: CxxToolchainInfo
@@ -83,6 +87,7 @@ def _build_cxxflags_arg(ctx: AnalysisContext, cxx_toolchain_info: CxxToolchainIn
       Returns:
           List[str]: list of CXX flags.
     """
+
     platform_compiler_flags = []
     [platform_compiler_flags.extend([str(flag) for flag in flags]) for flags in cxx_by_platform(ctx, ctx.attrs.platform_compiler_flags)]
     return cxx_toolchain_info.cxx_compiler_info.compiler_flags + \
@@ -97,21 +102,21 @@ def _move_artifacts(
         identifier_format: str) -> (list[Artifact], dict):
     """Moves files from `install_dir`/`sub_dir`.
 
-    Attrs:
-      ctx:
-        Analysis context.
-      install_dir:
-        Install directory.
-      sub_dir:
-        Sub directory within `install_dir`.
-      filenames:
-        List of file names to move.
-      identifier_format:
-        ctx.actions.run identifier format. Must contain `label`, `i`
-        and `filename`.
+      Args:
+        ctx:
+          Analysis context.
+        install_dir:
+          Install directory.
+        sub_dir:
+          Sub directory within `install_dir`.
+        filenames:
+          List of file names to move.
+        identifier_format:
+          ctx.actions.run identifier format. Must contain `label`, `i`
+          and `filename`.
 
-    Returns:
-      List of artifacts and dict of DefaultInfo provider.
+      Returns:
+        List of artifacts and dict of DefaultInfo provider.
     """
 
     out_files = []
@@ -146,14 +151,15 @@ def _fetch_out_executable_binaries(ctx: AnalysisContext, install_dir: Artifact) 
     """Fetches the output executable binaries, using `attr.output_binary_dir`
     and `attr.out_binaries`.
 
-    Attrs:
-      ctx:
-        Analysis context.
-      install_dir:
-        Install directory.
+      Args:
+        ctx:
+          Analysis context.
+        install_dir:
+          Install directory.
 
-    Returns:
-      List of artifacts and dictionary of providers. This list may be empty."""
+      Returns:
+        List of artifacts and dictionary of providers. This list may be empty.
+    """
 
     outs, sub_targets = _move_artifacts(
         ctx = ctx,
@@ -172,14 +178,15 @@ def _fetch_out_static_libraries(ctx: AnalysisContext, install_dir: Artifact) -> 
     """Fetches the output static libraries, using `attr.out_lib_dir`
     and `attr.out_static_libs`.
 
-    Attrs:
-      ctx:
-        Analysis context.
-      install_dir:
-        Install directory.
+      Args:
+        ctx:
+          Analysis context.
+        install_dir:
+          Install directory.
 
-    Returns:
-      List of artifacts and dictionary of providers. This list may be empty."""
+      Returns:
+        List of artifacts and dictionary of providers. This list may be empty.
+    """
 
     return _move_artifacts(
         ctx = ctx,
@@ -193,14 +200,15 @@ def _fetch_out_shared_libraries(ctx: AnalysisContext, install_dir: Artifact) -> 
     """Fetches the output shared libraries, using `attr.out_lib_dir`
     and `attr.out_shared_libs`.
 
-    Attrs:
-      ctx:
-        Analysis context.
-      install_dir:
-        Install directory.
+      Args:
+        ctx:
+          Analysis context.
+        install_dir:
+          Install directory.
 
-    Returns:
-      List of artifacts and dictionary of providers. This list may be empty."""
+      Returns:
+        List of artifacts and dictionary of providers. This list may be empty.
+    """
 
     return _move_artifacts(
         ctx = ctx,
@@ -213,15 +221,15 @@ def _fetch_out_shared_libraries(ctx: AnalysisContext, install_dir: Artifact) -> 
 def _fetch_include_directory(ctx: AnalysisContext, install_dir: Artifact) -> Artifact | None:
     """Fetches the include directories, using `attr.out_include_dir`.
 
-    Attrs:
-      ctx:
-        Analysis context.
-      install_dir:
-        Install directory.
+      Args:
+        ctx:
+          Analysis context.
+        install_dir:
+          Install directory.
 
-    Returns:
-      The artifact corresponding to the include directory, or None if
-      `attr.out_include_dir` is empty.
+      Returns:
+        The artifact corresponding to the include directory, or None if
+        `attr.out_include_dir` is empty.
     """
 
     if ctx.attrs.out_include_dir == "":
@@ -242,7 +250,7 @@ def _fetch_include_directory(ctx: AnalysisContext, install_dir: Artifact) -> Art
 
     return out
 
-def _gnumake_impl(ctx: AnalysisContext) -> list:
+def _gnumake_impl(ctx: AnalysisContext) -> list[Provider]:
     """Implementation of rule `gnumake`."""
     gnumake_bin = ctx.attrs._gnumake_toolchain[GNUMakeToolchainInfo].bin
     cxx_toolchain_info = ctx.attrs._cxx_toolchain[CxxToolchainInfo]

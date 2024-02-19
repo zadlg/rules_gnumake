@@ -15,7 +15,12 @@
 load("@gnumake//gnumake:toolchain_info.bzl", "GNUMakeToolchainInfo")
 
 def gnumake_rule_get_attributes() -> dict:
-    """Returns the attributes of the `gnumake` rule."""
+    """Returns the attributes of the `gnumake` rule.
+
+    Returns:
+      Attributes of `gnumake` rule.
+    """
+
     return {
         "args": attrs.list(
             attrs.arg(),
