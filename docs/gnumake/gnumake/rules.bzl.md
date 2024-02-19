@@ -43,6 +43,12 @@ def gnumake(
     compiler_flags: list[str] = _,
     install_prefix: str = _,
     makefile: str = _,
+    out_binaries: list[str] = _,
+    out_binary_dir: str = _,
+    out_include_dir: str = _,
+    out_lib_dir: str = _,
+    out_shared_libs: list[str] = _,
+    out_static_libs: list[str] = _,
     platform_compiler_flags: list[(str, list[str])] = _,
     srcs: list[str],
     targets: list[str] = _
@@ -67,6 +73,12 @@ def gnumake(
 * `compiler_flags`: Flags to use when compiling.
 * `install_prefix`: Install prefix path, relative to where to install the result of the build. This is passed an an argument to `make` as `PREFIX=<value>`.
 * `makefile`: The Makefile to use. This must contain the relative path to the Makefile.
+* `out_binaries`: Filenames of output executable binaries. These files will be fetched from the `out_binary_dir` directory.
+* `out_binary_dir`: Name of the subdirectory that contains the executable binary files.
+* `out_include_dir`: Name of the subdirectory that contains the header files.
+* `out_lib_dir`: Name of the subdirectory that contains the library files.
+* `out_shared_libs`: Filenames of output shared libraries. These files will be fetched from the `out_lib_dir` directory.
+* `out_static_libs`: Filenames of output static libraries. These files will be fetched from the `out_lib_dir` directory.
 * `platform_compiler_flags`: Flags to use when compiling.
 * `srcs`: Input source.
 * `targets`: A list of targets to produce.
