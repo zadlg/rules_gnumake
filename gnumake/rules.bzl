@@ -282,6 +282,8 @@ def _gnumake_impl(ctx: AnalysisContext) -> list[Provider]:
     args.add(["-C", srcs_dir])
     args.add(["-f", ctx.attrs.makefile])
     args.add(cmd_args(cmd_args(install_dir.as_output()).relative_to(srcs_dir), format = "PREFIX={}"))
+    args.add(cmd_args(cxx_toolchain_info.c_compiler_info.compiler, format = "CC={}"))
+    args.add(cmd_args(cxx_toolchain_info.cxx_compiler_info.compiler, format = "CXX={}"))
     args.add(ctx.attrs.args)
     args.add(ctx.attrs.targets)
     env = {

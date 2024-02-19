@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@prelude//cxx:cxx_toolchain_types.bzl", "CxxToolchainInfo")
 load(":providers.bzl", "GNUMakeToolchainInfo")
 
 def gnumake_rule_get_attributes() -> dict:
@@ -132,6 +133,7 @@ This is passed an an argument to `make` as `PREFIX=<value>`.
         "_cxx_toolchain": attrs.default_only(
             attrs.toolchain_dep(
                 default = "@toolchains//:cxx",
+                providers = [CxxToolchainInfo],
             ),
             doc = """
     CXX toolchain.
