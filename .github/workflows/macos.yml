@@ -1,0 +1,32 @@
+name: macOS tests
+
+on:
+  push:
+    branches:
+      - "*"
+      - "!sapling-pr-archive-*"
+
+jobs:
+  build_test_macos:
+    runs-on: macos-13
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Fetch Buck2
+        uses: zadlg/buck2-github-composite-action@v3
+        with:
+          arch: x86_64
+          platform: apple-darwin
+          sha384: 230272fa57843a024759187e5606859755250e612a288122ea91ce54f5e602186dfc8cd06c9e895c7d66954b16c9f92
+          output-path: /usr/local/bin/buck2
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Fetch Buck2 prelude cell and init Buck2 workspace.
+        run: |
+          git clone --depth=1 'https://github.com/facebook/buck2-prelude.git' prelude
+
+      - name: Run full build
+        run: |
+          /usr/local/bin/buck2 build ...
