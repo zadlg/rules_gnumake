@@ -88,6 +88,45 @@ def _build_cxxflags_arg(ctx: AnalysisContext, cxx_toolchain_info: CxxToolchainIn
            [str(flag) for flag in extra_flags] + \
            _get_platform_specific_compiler_flags(ctx, ctx.attrs.platform_compiler_flags)
 
+def _fetch_out_executable_binaries(ctx: AnalysisContext, install_dir: Artifact) -> list[Artifact]:
+    """Fetches the output executable binaries, using `attr.output_binary_dir`
+    and `attr.out_binaries`.
+
+    Attrs:
+      ctx:
+        Analysis context.
+
+    Returns:
+      List of artifacts. This list may be empty."""
+
+    if len(ctx.attrs.out_binaries) == 0:
+        return []
+
+    out_binaries = []
+    i = 0
+    for binary_filename in ctx.attrs.out_binaries:
+        src = cmd_args(install_dir, format = "{{}}/{bin_path}/{binary_filename}".format(
+            bin_path = ctx.attrs.out_binary_dir,
+            binary_filename = binary_filename,
+        ))
+        out = ctx.actions.declare_output("bin_{i}/{binary_filename}".format(
+            i = i,
+            binary_filename = binary_filename,
+        ))
+        ctx.actions.run(
+            cmd_args(["mv", src, out.as_output()]),
+            category = "gnumake",
+            identifier = "{label}/out_binaries[{i}]={binary_filename}".format(
+                label = ctx.label,
+                i = i,
+                binary_filename = binary_filename,
+            ),
+        )
+        out_binaries.append(out)
+        i += 1
+
+    return out_binaries
+
 def _gnumake_impl(ctx: AnalysisContext) -> list:
     """Implementation of rule `gnumake`."""
     gnumake_bin = ctx.attrs._gnumake_toolchain[GNUMakeToolchainInfo].bin
@@ -126,9 +165,31 @@ def _gnumake_impl(ctx: AnalysisContext) -> list:
         exe = ctx.attrs._wrapped_make[RunInfo],
     )
 
-    return [
-        DefaultInfo(default_output = install_dir),
-    ]
+    out_binaries = _fetch_out_executable_binaries(
+        ctx = ctx,
+        install_dir = install_dir,
+    )
+
+    run_infos = {}
+    for i in range(len(ctx.attrs.out_binaries)):
+        run_infos[ctx.attrs.out_binaries[i]] = [
+            DefaultInfo(default_output = out_binaries[i]),
+            RunInfo(cmd_args(out_binaries[i])),
+        ]
+
+    if len(out_binaries) == 0:
+        return [
+            DefaultInfo(
+                default_output = install_dir,
+            ),
+        ]
+    else:
+        return [
+            DefaultInfo(
+                default_outputs = [install_dir] + out_binaries,
+                sub_targets = run_infos,
+            ),
+        ]
 
 def _gnumake_attributes() -> dict[str, Attr]:
     return {
@@ -186,6 +247,48 @@ This is passed an an argument to `make` as `PREFIX=<value>`.
             default = ["", "install"],
             doc = """
     A list of targets to produce.
+""",
+        ),
+        "out_lib_dir": attrs.string(
+            default = "lib",
+            doc = """
+    Name of the subdirectory that contains the library files.
+""",
+        ),
+        "out_shared_libs": attrs.list(
+            attrs.string(),
+            default = [],
+            doc = """
+    Filenames of output shared libraries. These files will be fetched
+    from the `out_lib_dir` directory.
+""",
+        ),
+        "out_static_libs": attrs.list(
+            attrs.string(),
+            default = [],
+            doc = """
+    Filenames of output static libraries. These files will be fetched
+    from the `out_lib_dir` directory.
+""",
+        ),
+        "out_include_dir": attrs.string(
+            default = "include",
+            doc = """
+    Name of the subdirectory that contains the header files.
+""",
+        ),
+        "out_binary_dir": attrs.string(
+            default = "bin",
+            doc = """
+    Name of the subdirectory that contains the executable binary files.
+""",
+        ),
+        "out_binaries": attrs.list(
+            attrs.string(),
+            default = [],
+            doc = """
+    Filenames of output executable binaries. These files will be fetched
+    from the `out_binary_dir` directory.
 """,
         ),
         "_gnumake_toolchain": attrs.default_only(
