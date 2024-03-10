@@ -23,25 +23,25 @@ jobs:
         run: |
           mkdir example/ && cd example
           buck2 init --git
-          mkdir gnumake
+          mkdir rules_gnumake
 
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          path: example/gnumake
+          path: example/rules_gnumake
 
       - name: Create the `.buckconfig` file
         working-directory: example/
         run: |
-          mv gnumake/.buckconfig .
-          sed -i 's/gnumake = ./gnumake = gnumake/g' .buckconfig
+          mv rules_gnumake/.buckconfig .
+          sed -i 's/rules_gnumake = ./rules_gnumake = rules_gnumake/g' .buckconfig
           touch .buckroot
 
       - name: Import `gnumake` symbol in main BUCK file.
         working-directory: example/
         run: |
-          echo -ne 'load("@gnumake//gnumake:rules.bzl", "gnumake")' > BUCK
+          echo -ne 'load("@rules_gnumake//gnumake:rules.bzl", "gnumake")' > BUCK
 
       - name: Compile GNUMake
         working-directory: example/
-        run: buck2 build -- @gnumake//gnumake ...
+        run: buck2 build -- @rules_gnumake//gnumake ...

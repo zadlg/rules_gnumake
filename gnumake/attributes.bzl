@@ -123,7 +123,7 @@ This is passed an an argument to `make` as `PREFIX=<value>`.
         ),
         "_gnumake_toolchain": attrs.default_only(
             attrs.toolchain_dep(
-                default = "@gnumake//:gnumake",
+                default = "@rules_gnumake//:gnumake",
                 providers = [GNUMakeToolchainInfo],
             ),
             doc = """
@@ -140,7 +140,7 @@ This is passed an an argument to `make` as `PREFIX=<value>`.
 """,
         ),
         "_wrapped_make": attrs.dep(
-            default = "@gnumake//gnumake:wrapped_make",
+            default = "@rules_gnumake//gnumake:wrapped_make",
             doc = """
     Wrapped make script.
 """,

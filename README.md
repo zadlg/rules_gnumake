@@ -5,7 +5,7 @@ This repository implements a [Buck2] toolchain for using [GNU Make].
 [GNU Make] binaries are not downloaded from some source. Instead, the source code
 is built from the source.
 
-_TL;DR_: See [`gnumake`](docs/gnumake/gnumake/rules.bzl.md#gnumake).
+_TL;DR_: See [`gnumake`](docs/root/gnumake/rules.bzl.md#gnumake).
 
 ## Dependencies
 
@@ -45,19 +45,19 @@ toolchain, add the following cell:
 # .buckconfig
 
 [repositories]
-gnumake = <path_to_gnumake>/
+rules_gnumake = <path_to_gnumake>/
 
 [parser]
-target_platform_detector_spec = target:gnumake//...->prelude//platforms:default
+target_platform_detector_spec = target:rules_gnumake//...->prelude//platforms:default
 ```
 
 ### Example
 
-First, we clone the repository under `external_deps/gnumake`:
+First, we clone the repository under `external_deps/rules_gnumake`:
 
 ```shell
-$ mkdir -p external_deps/gnumake
-$ git clone 'https://github.com/zadlg/buck2_rules_gnumake.git' external_deps/gnumake
+$ mkdir -p external_deps/rules_gnumake
+$ git clone 'https://github.com/zadlg/rules_gnumake.git' external_deps/rules_gnumake
 ```
 
 Then, we declare the cell by adding an entry under the section `repositories`
@@ -67,17 +67,17 @@ of the `.buckconfig` file:
 # .buckconfig
 
 [repositories]
-gnumake = external_deps/gnumake
+rules_gnumake = external_deps/rules_gnumake
 ```
 
 Finally, we add a new entry under the section `parser` to tell Buck which
-platforms should be targeted for the `gnumake` cell:
+platforms should be targeted for the `rules_gnumake` cell:
 
 ```
 # .buckconfig
 
 [parser]
-target_platform_detector_spec = target:gnumake//...->prelude//platforms:default
+target_platform_detector_spec = target:rules_gnumake//...->prelude//platforms:default
 ```
 
 ## Usage
@@ -88,7 +88,7 @@ First, we have to enable the [GNU Make] toolchain. To do so, edit your toolchain
 `BUCK` file (usually under `toolchains/BUCK`), and add the following:
 
 ```starlark
-load("@gnumake//gnumake:gnumake.bzl", "gnumake_toolchain")
+load("@rules_gnumake//gnumake:gnumake.bzl", "gnumake_toolchain")
 
 gnumake_toolchain(
     name = "gnumake",
@@ -103,7 +103,7 @@ Once the toolchain is enabled, one can do the following:
 ```starlark
 # BUCK file
 
-load("@gnumake//gnumake:rules.bzl", "gnumake")
+load("@rules_gnumake//gnumake:rules.bzl", "gnumake")
 
 gnumake(
     name = "mylib",

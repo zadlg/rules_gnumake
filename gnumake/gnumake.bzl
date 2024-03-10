@@ -35,7 +35,7 @@ gnumake_toolchain = rule(
         "_gnumake_built": attrs.default_only(
             attrs.exec_dep(
                 doc = "GNUMake built",
-                default = "@gnumake//gnumake:gnumake",
+                default = "@rules_gnumake//gnumake:gnumake",
                 providers = [RunInfo],
             ),
         ),
