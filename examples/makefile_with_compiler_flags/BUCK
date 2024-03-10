@@ -1,4 +1,4 @@
-load("@gnumake//gnumake:rules.bzl", "gnumake")
+load("@rules_gnumake//gnumake:rules.bzl", "gnumake")
 
 gnumake(
     name = "makefile_with_compiler_flags",

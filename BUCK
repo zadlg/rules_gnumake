@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@gnumake//gnumake:gnumake.bzl", "gnumake_toolchain")
+load("@rules_gnumake//gnumake:gnumake.bzl", "gnumake_toolchain")
 
 gnumake_toolchain(
     name = "gnumake",

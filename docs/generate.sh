@@ -6,8 +6,8 @@ buck2 docs starlark \
   --format markdown_files \
   --markdown-files-starlark-subdir "" \
   --markdown-files-destination-dir "${PWD}/docs/" \
-  -- @gnumake//gnumake:rules.bzl \
-     @gnumake//gnumake:providers.bzl
+  -- @rules_gnumake//gnumake:rules.bzl \
+     @rules_gnumake//gnumake:providers.bzl
 
 if ! [ "$1" = "generate" ]; then
   if [ -d ".git" ]; then
